@@ -116,7 +116,23 @@
         .drag-handle { width: 40px; height: 4px; background: #444; border-radius: 2px; margin: 0 auto 15px; }
         .sheet-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 15px; }
         .sheet-title { font-size: 18px; font-weight: 700; }
-        .sheet-list { overflow-y: auto; flex: 1; }
+
+
+        .sheet-list { 
+            overflow-y: auto; 
+            flex: 1; 
+            /* Ocultar barra en Firefox */
+            scrollbar-width: none; 
+            /* Ocultar barra en IE/Edge */
+            -ms-overflow-style: none; 
+        }
+
+        /* Ocultar barra en Chrome/Safari/Webkit */
+        .sheet-list::-webkit-scrollbar { 
+            display: none; 
+        }
+
+
         .list-item { display: flex; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .list-thumb { width: 80px; height: 80px; border-radius: 12px; background: #333; object-fit: cover; }
         .list-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
@@ -187,8 +203,31 @@
         #profile-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #121212; z-index: 50;
-            overflow-y: auto; display: none;
-            padding-bottom: 100px; /* Espacio para el botón flotante */
+            display: none; 
+            /* Flexbox para manejar scroll vs fijo */
+            flex-direction: column; 
+            overflow: hidden; 
+        }
+
+        /* Contenedor que hace Scroll */
+        .profile-scroll-content {
+            flex: 1; /* Ocupa todo el espacio disponible */
+            overflow-y: auto; /* Solo esto se mueve */
+            padding-bottom: 100px; /* Espacio para que el último item no quede tapado por el botón */
+            position: relative;
+        }
+        
+        /* Ocultar barra de scroll en el perfil */
+        .profile-scroll-content::-webkit-scrollbar { display: none; }
+
+        /* Footer Fijo (Ahora usando Absolute relativo al profile-screen) */
+        .sticky-footer {
+            position: absolute; 
+            bottom: 0; left: 0; width: 100%;
+            padding: 20px 20px 30px 20px;
+            /* Quitamos pointer-events: none para evitar conflictos */
+            background: linear-gradient(to top, #121212 90%, transparent);
+            z-index: 60; 
         }
 
         /* Hero Image & Info */
@@ -206,7 +245,7 @@
         .profile-desc { font-size: 14px; line-height: 1.5; color: #ddd; margin-bottom: 25px; }
 
         /* Selector de Horas */
-        .time-selector { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 30px; }
+        .time-selector { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 30px; cursor: grab; z-index: 10;position: relative; }
         .time-selector::-webkit-scrollbar { display: none; }
         .time-chip { 
             background: #2a2a2a; border: 1px solid #444; color: #fff; 
@@ -222,7 +261,7 @@
         .link-see-all { font-size: 12px; color: white; text-decoration: underline; }
 
         /* Carrusel Experiencias */
-        .experience-carousel { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 30px; }
+        .experience-carousel { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 30px; cursor: grab;z-index: 10;position: relative; }
         .experience-carousel::-webkit-scrollbar { display: none; }
         .exp-card { min-width: 260px; height: 160px; border-radius: 16px; background: #333; position: relative; overflow: hidden; }
         .exp-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
@@ -250,7 +289,7 @@
             position: fixed; bottom: 0; left: 0; width: 100%;
             padding: 20px 20px 30px 20px;
             background: linear-gradient(to top, #121212 80%, transparent);
-            z-index: 60; pointer-events: none; /* Click through empty space */
+            z-index: 60; /* Click through empty space */
         }
         .btn-reserve {
             pointer-events: auto;
@@ -347,6 +386,70 @@
 
 
         /***************************************************************/
+
+        /*SIMULADOR**************************************************************/
+
+        /* --- MODO PRESENTACIÓN (TRUCO AUTO-MOBILE) --- */
+        
+        /* Solo se activa si la pantalla es más ancha que un celular (PC/Tablet) */
+        @media (min-width: 500px) {
+            body {
+                background-color: #222; /* Fondo oscuro de escritorio */
+                background-image: radial-gradient(#333 1px, transparent 1px);
+                background-size: 20px 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                padding: 40px 0;
+            }
+
+            #app-container {
+                /* Forzamos el tamaño de un iPhone Pro Max */
+                width: 430px; 
+                height: 932px; 
+                
+                /* Marco del teléfono */
+                border: 12px solid #000;
+                border-radius: 50px;
+                box-shadow: 0 0 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+                overflow: hidden; /* Cortar lo que salga del borde */
+                position: relative;
+                background: #121212;
+            }
+
+            /* Corrección crítica: Los elementos 'fixed' deben volverse 'absolute' 
+               para quedarse dentro del teléfono y no pegarse a la pantalla del PC */
+            
+            #splash-screen, 
+            .top-header, 
+            .bottom-nav, 
+            .sticky-footer,
+            .profile-video-container div[style*="fixed"] {
+                position: absolute !important;
+                width: 100% !important;
+                /* El splash debe tapar todo el "telefono", no la pantalla del PC */
+            }
+            
+            #splash-screen { border-radius: 38px; } /* Ajuste bordes splash */
+
+            .restaurant-card {
+                /* Puedes subirlo o bajarlo a gusto aquí sin afectar al celular real */
+                bottom: 220px !important; 
+            }
+
+            .right-sidebar {
+                /* Lo mismo para los íconos: ajusta para mantener la distancia */
+                bottom: 360px !important; 
+            }
+
+        }
+
+        /***************************************************************/
+
+
+
+
 
     </style>
 </head>
@@ -500,129 +603,130 @@
         /*PERFIL RESTAURANTE**************************************************************/
 
         <div id="profile-screen">
-            <div style="position:fixed; top:50px; left:20px; z-index:100;">
+            
+            <div style="position:absolute; top:50px; left:20px; z-index:100;">
                 <div class="btn-back btn-active" onclick="closeProfile()" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(5px);">
                     <span class="material-symbols-rounded">arrow_back</span>
                 </div>
             </div>
 
-            <div class="profile-video-container">
-                <video id="prof-hero-video" autoplay muted loop playsinline></video>
-                <div class="hero-gradient"></div>
-            </div>
-
-
-            <div class="profile-hero">
-                <div class="profile-title">
-                    <span id="prof-name">Nombre Restaurante</span>
-                    <div class="rating-pill">★ <span id="prof-rate">4.1</span></div>
+            <div class="profile-scroll-content">
+                <div class="profile-video-container">
+                    <video id="prof-hero-video" autoplay muted loop playsinline></video>
+                    <div class="hero-gradient"></div>
                 </div>
-                
-                <div class="tags-row">
-                    <div class="tag-capsule tag-orange" id="prof-cat">TRADICIONAL</div>
-                    <div class="tag-capsule tag-grey">
-                        <span class="material-symbols-rounded" style="font-size:14px;">location_on</span>
-                        <span id="prof-loc">Yanahuara</span>
+
+                <div class="profile-hero">
+                    <div class="profile-title">
+                        <span id="prof-name">Nombre Restaurante</span>
+                        <div class="rating-pill">★ <span id="prof-rate">4.1</span></div>
                     </div>
-                </div>
-
-                <div class="social-proof">
-                    <span class="material-symbols-rounded" style="font-size:16px;">verified_user</span>
-                    Visitado por 51 embajadores gastronómicos
-                </div>
-
-                <div class="meta-details">$$ • Abierto • Estacionamiento disponible</div>
-
-                <div class="profile-desc" id="prof-desc">
-                    Descripción del lugar...
-                </div>
-
-                <div class="time-selector">
-                    <div class="time-chip active">01:00 p.m.</div>
-                    <div class="time-chip">01:30 p.m.</div>
-                    <div class="time-chip">02:00 p.m.</div>
-                    <div class="time-chip disabled">02:30 p.m.</div>
-                    <div class="time-chip">03:00 p.m.</div>
-                    <div class="time-chip">03:30 p.m.</div>
-                </div>
-
-                <div class="section-header">
-                    <span class="section-h2">Experiencias</span>
-                    <span class="link-see-all">Ver todo</span>
-                </div>
-                <div class="experience-carousel">
-                    <div class="exp-card">
-                        <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/pack_cena_romantica.png" class="exp-img">
-                        <div class="exp-overlay">
-                            <div class="exp-title">Mesa Romántica</div>
-                            <div class="exp-price">S/ 120.00</div>
+                    
+                    <div class="tags-row">
+                        <div class="tag-capsule tag-orange" id="prof-cat">TRADICIONAL</div>
+                        <div class="tag-capsule tag-grey">
+                            <span class="material-symbols-rounded" style="font-size:14px;">location_on</span>
+                            <span id="prof-loc">Yanahuara</span>
                         </div>
                     </div>
-                    <div class="exp-card">
-                        <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/pack_cata_vinos.png" class="exp-img">
-                        <div class="exp-overlay">
-                            <div class="exp-title">Cata de Vinos</div>
-                            <div class="exp-price">S/ 180.00</div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="section-header">
-                    <span class="section-h2">Carta</span>
-                    <span class="link-see-all">Ver todo</span>
-                </div>
-                <div class="menu-grid">
-                    <div class="menu-item">
-                        <div class="menu-thumb">
-                            <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/rocoto_relleno.png" class="menu-img">
-                            <div class="price-tag">S/ 45</div>
-                        </div>
-                        <span class="menu-name">Rocoto Relleno</span>
+                    <div class="social-proof">
+                        <span class="material-symbols-rounded" style="font-size:16px;">verified_user</span>
+                        Visitado por 51 embajadores gastronómicos
                     </div>
-                    <div class="menu-item">
-                        <div class="menu-thumb">
-                            <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/chupe_camarones.png" class="menu-img">
-                            <div class="price-tag">S/ 55</div>
-                        </div>
-                        <span class="menu-name">Chupe Camarones</span>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-thumb">
-                            <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/soltero_queso.png" class="menu-img">
-                            <div class="price-tag">S/ 38</div>
-                        </div>
-                        <span class="menu-name">Soltero Queso</span>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-thumb">
-                            <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/malaya_dorada.png" class="menu-img">
-                            <div class="price-tag">S/ 60</div>
-                        </div>
-                        <span class="menu-name">Malaya Dorada</span>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-thumb">
-                            <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/queso_helado.png" class="menu-img">
-                            <div class="price-tag">S/ 15</div>
-                        </div>
-                        <span class="menu-name">Queso Helado</span>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-thumb">
-                            <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/ensalada_casa.png" class="menu-img">
-                            <div class="price-tag">S/ 25</div>
-                        </div>
-                        <span class="menu-name">Ensalada de la Casa</span>
-                    </div>
-                </div>
-            </div>
 
-            <div class="sticky-footer">
+                    <div class="meta-details">$$ • Abierto • Estacionamiento disponible</div>
+
+                    <div class="profile-desc" id="prof-desc">
+                        Descripción del lugar...
+                    </div>
+
+                    <div class="time-selector">
+                        <div class="time-chip active">01:00 p.m.</div>
+                        <div class="time-chip">01:30 p.m.</div>
+                        <div class="time-chip">02:00 p.m.</div>
+                        <div class="time-chip disabled">02:30 p.m.</div>
+                        <div class="time-chip">03:00 p.m.</div>
+                        <div class="time-chip">03:30 p.m.</div>
+                    </div>
+
+                    <div class="section-header">
+                        <span class="section-h2">Experiencias</span>
+                        <span class="link-see-all">Ver todo</span>
+                    </div>
+                    <div class="experience-carousel">
+                        <div class="exp-card">
+                            <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/pack_cena_romantica.png" class="exp-img">
+                            <div class="exp-overlay">
+                                <div class="exp-title">Mesa Romántica</div>
+                                <div class="exp-price">S/ 120.00</div>
+                            </div>
+                        </div>
+                        <div class="exp-card">
+                            <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/pack_cata_vinos.png" class="exp-img">
+                            <div class="exp-overlay">
+                                <div class="exp-title">Cata de Vinos</div>
+                                <div class="exp-price">S/ 180.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <span class="section-h2">Carta</span>
+                        <span class="link-see-all">Ver todo</span>
+                    </div>
+                    <div class="menu-grid">
+                        <div class="menu-item">
+                            <div class="menu-thumb">
+                                <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/rocoto_relleno.png" class="menu-img">
+                                <div class="price-tag">S/ 45</div>
+                            </div>
+                            <span class="menu-name">Rocoto Relleno</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-thumb">
+                                <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/chupe_camarones.png" class="menu-img">
+                                <div class="price-tag">S/ 55</div>
+                            </div>
+                            <span class="menu-name">Chupe Camarones</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-thumb">
+                                <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/soltero_queso.png" class="menu-img">
+                                <div class="price-tag">S/ 38</div>
+                            </div>
+                            <span class="menu-name">Soltero Queso</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-thumb">
+                                <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/malaya_dorada.png" class="menu-img">
+                                <div class="price-tag">S/ 60</div>
+                            </div>
+                            <span class="menu-name">Malaya Dorada</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-thumb">
+                                <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/queso_helado.png" class="menu-img">
+                                <div class="price-tag">S/ 15</div>
+                            </div>
+                            <span class="menu-name">Queso Helado</span>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-thumb">
+                                <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/ensalada_casa.png" class="menu-img">
+                                <div class="price-tag">S/ 25</div>
+                            </div>
+                            <span class="menu-name">Ensalada de la Casa</span>
+                        </div>
+                    </div>
+                </div>
+            </div> <div class="sticky-footer">
                 <button class="btn-reserve btn-active" onclick="goToCheckout()">
                     <span class="material-symbols-rounded">confirmation_number</span>
                     Reservar Mesa
                 </button>
             </div>
+
         </div>
 
         /***************************************************************/
@@ -639,7 +743,7 @@
             </div>
 
             <div class="checkout-rest-info">
-                <img src="https://images.unsplash.com/photo-1544025162-d76690b60944?auto=format&fit=crop&w=100&q=80" class="checkout-thumb">
+                <img src="https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/el_fuego_de_mi_abuela.png" class="checkout-thumb">
                 <div class="checkout-details">
                     <h3>El Fuego de mi Abuela</h3>
                     <p>Mesa para 2 • 16/01/2026 01:00 p.m.</p>
@@ -804,6 +908,11 @@
                 });
             }, { threshold: 0.6 });
             document.querySelectorAll('.feed-item').forEach(el => observer.observe(el));
+
+            // Activar el arrastre con mouse
+            enableDragScroll();
+
+
         }
 
         // --- NAVEGACIÓN ---
@@ -870,28 +979,32 @@
         // --- LÓGICA DE PERFIL ---
 
         // Abrir Perfil con datos dinámicos
+        // Abrir Perfil (CORREGIDO PARA SCROLL)
         window.openProfile = function(name, desc, rate, cat, videoUrl) {
-    
-            // 1. Llenar los textos (Igual que antes)
+            
+            // 1. Llenar los textos
             document.getElementById('prof-name').innerText = name || "Restaurante";
             document.getElementById('prof-desc').innerText = desc || "Descripción...";
             document.getElementById('prof-rate').innerText = rate || "4.5";
             document.getElementById('prof-cat').innerText = cat ? cat.toUpperCase() : "RESTAURANTE";
             
-            // 2. 👇 MAGIA DEL VIDEO 👇
-            const videoEl = document.getElementById('prof-hero-video'); // Buscamos el "televisor"
+            // 2. Conectar el Video
+            const videoEl = document.getElementById('prof-hero-video'); 
             if(videoUrl) {
-                videoEl.src = videoUrl; // Le decimos qué video cargar
-                videoEl.play();         // Le damos play
-            
+                videoEl.src = videoUrl; 
+                videoEl.play();         
             }
-            // 3. Mostrar la pantalla (Igual que antes)
-            const screen = document.getElementById('profile-screen');
-            screen.style.display = 'block';
-            screen.scrollTop = 0; 
-            document.querySelector('.bottom-nav').style.display = 'none';
 
+            // 3. Mostrar la pantalla
+            const screen = document.getElementById('profile-screen');
             
+            // 👇 AQUÍ ESTABA EL ERROR: Usar 'flex' en lugar de 'block'
+            screen.style.display = 'flex'; 
+            
+            // Resetear el scroll del contenido interno, no de la pantalla completa
+            document.querySelector('.profile-scroll-content').scrollTop = 0; 
+            
+            document.querySelector('.bottom-nav').style.display = 'none';
         }
 
         window.closeProfile = function() {
@@ -900,53 +1013,89 @@
             document.querySelector('.bottom-nav').style.display = 'flex';
         }
 
-        window.goToCheckout = function() {
-            // --- LÓGICA DE CHECKOUT ---
+        window.openCheckout = function() {
+            document.getElementById('checkout-screen').style.display = 'flex';
+        }
 
-            window.openCheckout = function() {
-                document.getElementById('checkout-screen').style.display = 'flex';
-            }
+        window.closeCheckout = function() {
+            document.getElementById('checkout-screen').style.display = 'none';
+        }
 
-            window.closeCheckout = function() {
-                document.getElementById('checkout-screen').style.display = 'none';
-            }
-
-            // Simulación de Pago Exitoso
-            window.processPayment = function() {
-                const btn = document.querySelector('.btn-pay');
-                const originalText = btn.innerText;
-                
-                // Estado de carga
-                btn.innerText = "Procesando...";
-                btn.style.opacity = "0.7";
+        window.processPayment = function() {
+            const btn = document.querySelector('.btn-pay');
+            const originalText = btn.innerText;
+            
+            // Estado de carga
+            btn.innerText = "Procesando...";
+            btn.style.opacity = "0.7";
+            
+            setTimeout(() => {
+                btn.innerText = "¡Pago Exitoso!";
+                btn.style.backgroundColor = "#4CAF50"; // Verde
                 
                 setTimeout(() => {
-                    btn.innerText = "¡Pago Exitoso!";
-                    btn.style.backgroundColor = "#4CAF50"; // Verde
+                    // Cerrar todo y volver a Tickets
+                    closeCheckout();
+                    closeProfile();
+                    switchTab('tickets'); 
                     
-                    setTimeout(() => {
-                        // Cerrar todo y volver al Home o Wallet
-                        closeCheckout();
-                        closeProfile();
-                        switchTab('tickets'); // Llevar al usuario a ver su nuevo ticket
-                        
-                        // Resetear botón
-                        btn.innerText = originalText;
-                        btn.style.backgroundColor = ""; 
-                        btn.style.opacity = "1";
-                    }, 1500);
-                }, 2000);
-            }
+                    // Resetear botón
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = ""; 
+                    btn.style.opacity = "1";
+                }, 1500);
+            }, 2000);
+        }
 
-            // ACTUALIZACIÓN: Conectar el botón "Reservar" del perfil
-            window.goToCheckout = function() {
-                openCheckout(); // Ahora abre la pantalla real en lugar del alert
-            }
+        // 2. Definir la función principal que llama el botón
+        window.goToCheckout = function() {
+            openCheckout(); // Ahora sí funciona al primer click
         }
 
         /***************************************************************/
 
+        // --- TRUCO: ARRASTRAR CON MOUSE (DRAG TO SCROLL) ---
+        // Esto permite mover los carruseles con el mouse como si fuera un dedo
+        function enableDragScroll() {
+            // Seleccionamos todos los elementos que deben moverse horizontalmente
+            const sliders = document.querySelectorAll('.time-selector, .experience-carousel, .filter-row');
+            
+            sliders.forEach(slider => {
+                let isDown = false;
+                let startX;
+                let scrollLeft;
 
+                // Al hacer clic
+                slider.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    slider.style.cursor = 'grabbing'; // Cambia el cursor a "agarrando"
+                    startX = e.pageX - slider.offsetLeft;
+                    scrollLeft = slider.scrollLeft;
+                });
+
+                // Al soltar o salir
+                slider.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    slider.style.cursor = 'grab';
+                });
+                slider.addEventListener('mouseup', () => {
+                    isDown = false;
+                    slider.style.cursor = 'grab';
+                });
+
+                // Al mover el mouse
+                slider.addEventListener('mousemove', (e) => {
+                    if(!isDown) return; // Si no está clicando, no hace nada
+                    e.preventDefault(); // Evita seleccionar texto
+                    const x = e.pageX - slider.offsetLeft;
+                    const walk = (x - startX) * 2; // Velocidad del desplazamiento (* 2 es más rápido)
+                    slider.scrollLeft = scrollLeft - walk;
+                });
+                
+                // Cursor inicial
+                slider.style.cursor = 'grab';
+            });
+        }
 
         window.onload = init;
     </script>
