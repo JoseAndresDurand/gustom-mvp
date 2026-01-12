@@ -453,6 +453,32 @@
             .restaurant-card { bottom: 220px !important; }
             .right-sidebar { bottom: 360px !important; }
             .bottom-sheet { bottom: 90px !important; }
+
+            /* 1. Obligamos al scroll y a los items a llenar los 932px del celular */
+            .feed-scroll, 
+            .feed-item {
+                height: 100% !important; /* Antes era 100vh, eso causaba el error */
+            }
+
+            /* 2. RESTAURAMOS POSICIONES ORIGINALES */
+            /* Al corregir la altura, ya no necesitamos empujarlos hacia arriba manualmente.
+               Volvemos a sus valores naturales o con un ligero ajuste por el borde grueso */
+            
+            .restaurant-card { 
+                /* Estaba en 220px, lo bajamos a su sitio natural + un poquito por el marco */
+                bottom: 160px !important; 
+            }
+            
+            .right-sidebar { 
+                bottom: 300px !important; 
+            }
+
+            /* Aseguramos que el video cubra todo el espacio negro */
+            .video-player {
+                height: 100% !important;
+                object-fit: cover !important;
+            }
+
         }
         /***************************************************************/
 
