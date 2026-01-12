@@ -393,36 +393,47 @@
 
         /* --- MODO PRESENTACIÓN (TRUCO AUTO-MOBILE) --- */
         
-        /* Solo se activa si la pantalla es más ancha que un celular (PC/Tablet) */
+        /* --- MODO PRESENTACIÓN (VERSIÓN FINAL CORREGIDA) --- */
         @media (min-width: 500px) {
+            
+            /* 1. Limpiamos el escenario (La pantalla negra de fondo) */
             body {
-                background-color: #222; /* Fondo oscuro de escritorio */
+                background-color: #222;
                 background-image: radial-gradient(#333 1px, transparent 1px);
                 background-size: 20px 20px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 100vh;
-                padding: 40px 0;
+                
+                /* Forzamos a que ocupe toda la pantalla sin márgenes extraños */
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                height: 100vh !important;
+                width: 100vw !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important; 
             }
 
+            /* 2. El Celular (Contenedor Principal) */
             #app-container {
-                /* Forzamos el tamaño de un iPhone Pro Max */
+                /* Dimensiones Fijas del iPhone */
                 width: 430px; 
                 height: 932px; 
+                flex-shrink: 0; /* Evita que el flexbox lo aplaste */
+
+                /* TRUCO DE ORO: Zoom Inteligente */
+                /* En lugar de 'transform', usamos 'zoom' o 'scale' limpio */
+                transform: scale(min(1, calc(95vh / 932)));
                 
-                /* Marco del teléfono */
-                border: 12px solid #000;
-                border-radius: 50px;
-                box-shadow: 0 0 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.5);
-                overflow: hidden; /* Cortar lo que salga del borde */
-                position: relative;
+                /* Estética del dispositivo */
+                position: relative; /* Ya no usamos absolute para evitar el fallo de centrado */
+                border: 12px solid #1a1a1a;
+                border-radius: 55px;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.7);
                 background: #121212;
+                overflow: hidden;
             }
 
-            /* Corrección crítica: Los elementos 'fixed' deben volverse 'absolute' 
-               para quedarse dentro del teléfono y no pegarse a la pantalla del PC */
-            
+            /* 3. Asegurar que lo de adentro no se escape */
             #splash-screen, 
             .top-header, 
             .bottom-nav, 
@@ -430,23 +441,16 @@
             .profile-video-container div[style*="fixed"] {
                 position: absolute !important;
                 width: 100% !important;
-                /* El splash debe tapar todo el "telefono", no la pantalla del PC */
-            }
-            
-            #splash-screen { border-radius: 38px; } /* Ajuste bordes splash */
-
-            .restaurant-card {
-                /* Puedes subirlo o bajarlo a gusto aquí sin afectar al celular real */
-                bottom: 220px !important; 
+                left: 0 !important;
+                max-width: 100%;
             }
 
-            .right-sidebar {
-                /* Lo mismo para los íconos: ajusta para mantener la distancia */
-                bottom: 360px !important; 
-            }
-
+            /* Ajustes visuales internos */
+            #splash-screen { border-radius: 40px; } 
+            .restaurant-card { bottom: 220px !important; }
+            .right-sidebar { bottom: 360px !important; }
+            .bottom-sheet { bottom: 90px !important; }
         }
-
         /***************************************************************/
 
 
@@ -848,7 +852,7 @@
                 video: "https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/video_food_1.mp4"
             },
             {
-                id: 2, name: "La Benita", price: "$$", cat: "Picantería",
+                id: 2, name: "La Elenita", price: "$$", cat: "Picantería",
                 rate: "4.6", count: "(600)", desc: "Guardianas de la tradición. El mejor rocoto relleno...",
                 likes: "4.2K", saves: "1.2K",
                 video: "https://wvmwowfvmuoacxkuvtvi.supabase.co/storage/v1/object/public/public-assets/video_food_2.mp4"
